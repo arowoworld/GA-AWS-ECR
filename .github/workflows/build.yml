@@ -13,4 +13,23 @@ jobs:
                 aws-region: ${{secrets.REGION}}
                 aws-access-key-id: ${{secrets.ACCESS_KEY }}
                 aws-secret-access-key: ${{secrets.SECRET_ACCESS_KEY}}
+    
+    build_and_publish_to_AWS:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Code Checkout
+              uses: actions/checkout@v4
+            - name: Authenticate to Public ECR
+              uses: docker/login-action@v3
+              with:
+                 registry: public.ecr.aws
+                 username: ${{ secrets.ACCESS_KEY }}
+                 password: ${{ secrets.SECRET_ACCESS_KEY}}
+              env:
+                AWS_REGION: us-east-1
+            - name: Build Image
+              run: |
+                  docker build -t testimg:v1 .
+                  docker tag testimg:v1 public.ecr.aws/y3t7t6l0/merchant_api:latest
+                  docker push public.ecr.aws/y3t7t6l0/merchant_api:latest
        
