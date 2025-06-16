@@ -14,7 +14,7 @@ jobs:
           aws-access-key-id: ${{secrets.ACCESS_KEY }}
           aws-secret-access-key: ${{secrets.SECRET_ACCESS_KEY}}
 
-  build_and_publish_to_AWS:
+  build_and_publish_to_AWS_Public:
     runs-on: ubuntu-latest
     needs: login_to_aws
     steps:
@@ -33,3 +33,21 @@ jobs:
           docker build -t testimg:v1 .
           docker tag testimg:v1 public.ecr.aws/y3t7t6l0/merchant_api:latest
           docker push public.ecr.aws/y3t7t6l0/merchant_api:latest
+
+  build_and_publish_to_AWS_private:
+    runs-on: ubuntu-latest
+    needs: login_to_aws
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v4
+      - name: Authenticate to Private ECR
+        uses: docker/login-action@v3
+        with:
+          registry: 703671908019.dkr.ecr.us-east-1.amazonaws.com/merchant_api
+          username: ${{ secrets.ACCESS_KEY }}
+          password: ${{ secrets.SECRET_ACCESS_KEY}}
+      - name: Build and Push
+        run: |
+          docker build -t testimg:v1 .
+          docker tag testimg:v1 703671908019.dkr.ecr.us-east-1.amazonaws.com/merchant_api:latest
+          docker push 703671908019.dkr.ecr.us-east-1.amazonaws.com/merchant_api:latest
